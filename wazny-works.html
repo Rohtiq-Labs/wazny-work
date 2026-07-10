@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wazny Works — Protecting What Moves You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  /* ============ TOKENS ============ */
+  :root{
+    --bg-light: #afb0ae;
+    --bg-light-deep: #999a97;
+    --bg-light-pale: #c2c3c0;
+    --bg-dark: #2e2e2e;
+    --bg-dark-deep: #232323;
+    --ink: #15140f;
+    --paper: #f5f4ef;
+    --line-on-light: rgba(21,20,15,0.24);
+    --line-on-dark: rgba(245,244,239,0.22);
+    --display: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --ease: cubic-bezier(.16,.8,.24,1);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg-light);
+    color:var(--ink);
+    font-family:var(--sans);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--ink); color:var(--paper); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  }
+
+  .eyebrow{
+    font-family:var(--sans);
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    font-weight:500;
+    opacity:0.72;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+    font-family:var(--sans);
+    font-size:12px;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    font-weight:500;
+    padding:19px 30px;
+    border:1px solid currentColor;
+    background:transparent;
+    cursor:pointer;
+    transition:background .5s var(--ease), color .5s var(--ease);
+    white-space:nowrap;
+  }
+  .btn.on-dark{ color:var(--paper); }
+  .btn.on-dark:hover{ background:var(--paper); color:var(--bg-dark); }
+  .btn.on-light{ color:var(--ink); }
+  .btn.on-light:hover{ background:var(--ink); color:var(--bg-light); }
+  .btn svg{ width:14px; height:14px; transition:transform .5s var(--ease); }
+  .btn:hover svg{ transform:translateX(4px); }
+
+  section{ position:relative; }
+
+  /* reveal */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity 1.1s var(--ease), transform 1.1s var(--ease); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* grain overlay for dark sections */
+  .grain{
+    position:absolute; inset:0; pointer-events:none; opacity:.18; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* diagonal motion line — signature element */
+  .motion-line{
+    position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;
+  }
+  .motion-line svg{ width:100%; height:100%; }
+  .motion-line line{ stroke-dasharray:6 10; }
+
+  /* ============ NAV ============ */
+  header.nav{
+    position:fixed; top:0; left:0; width:100%; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 5vw;
+    mix-blend-mode:difference;
+    color:#fff;
+    font-family:var(--sans);
+  }
+  .nav-logo{ font-family:var(--display); font-size:18px; letter-spacing:0.04em; font-weight:500; }
+  .nav-links{ display:flex; gap:40px; }
+  .nav-links a{ font-size:11px; letter-spacing:0.22em; text-transform:uppercase; opacity:.85; }
+  .nav-links a:hover{ opacity:1; }
+  .nav-toggle{ display:none; }
+  @media (max-width:860px){
+    .nav-links{ display:none; }
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    height:100svh; min-height:640px;
+    background:linear-gradient(155deg, var(--bg-dark) 0%, var(--bg-dark-deep) 60%, #1c1c1c 100%);
+    color:var(--paper);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    overflow:hidden;
+  }
+  .hero-top{
+    position:absolute; top:0; left:0; width:100%;
+    padding:130px 5vw 0;
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .hero-kicker{ font-size:11px; letter-spacing:.32em; text-transform:uppercase; opacity:.6; max-width:220px; line-height:1.7; }
+  .hero-cycle-wrap{ text-align:right; height:20px; overflow:hidden; }
+  .hero-cycle{ font-size:11px; letter-spacing:.32em; text-transform:uppercase; }
+  .hero-cycle span{ display:block; height:20px; opacity:.85; }
+
+  .hero-mid{
+    padding:0 5vw;
+    position:relative;
+  }
+  .hero-title{
+    font-family:var(--display);
+    font-weight:400;
+    font-size:clamp(58px, 12.2vw, 178px);
+    line-height:0.86;
+    letter-spacing:-0.01em;
+  }
+  .hero-title .line{ display:block; overflow:hidden; }
+  .hero-title .line span{ display:block; transform:translateY(105%); transition:transform 1.4s var(--ease); }
+  .hero.loaded .hero-title .line span{ transform:translateY(0); }
+  .hero-title .line:nth-child(2) span{ transition-delay:.12s; }
+
+  .hero-sub{
+    font-family:var(--display);
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(18px,2.4vw,28px);
+    margin-top:22px;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity 1.2s var(--ease) .5s, transform 1.2s var(--ease) .5s;
+    max-width:640px;
+  }
+  .hero.loaded .hero-sub{ opacity:.92; transform:translateY(0); }
+
+  .hero-bottom{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    padding:52px 5vw 56px;
+    gap:24px;
+  }
+  .hero-scroll{
+    display:flex; align-items:center; gap:14px;
+    font-size:10px; letter-spacing:.28em; text-transform:uppercase; opacity:.6;
+  }
+  .hero-scroll .stick{ width:1px; height:40px; background:linear-gradient(var(--paper), transparent); animation:stickmove 2.4s ease-in-out infinite; }
+  @keyframes stickmove{ 0%,100%{ opacity:.2 } 50%{ opacity:.9 } }
+
+  /* ============ SECTION: SERVICES ============ */
+  .services{
+    background:var(--bg-light);
+    padding:180px 5vw 140px;
+  }
+  .services-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:110px;
+    gap:40px; flex-wrap:wrap;
+  }
+  .services-head h2{
+    font-family:var(--display); font-weight:400; font-size:clamp(36px,5.4vw,68px);
+    line-height:1.02; max-width:560px;
+  }
+  .services-head p{ max-width:300px; font-size:14px; line-height:1.75; opacity:.75; }
+
+  .services-grid{
+    display:grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap:0 90px;
+    align-items:start;
+  }
+  .service-feature{ position:relative; }
+  .service-feature .num{
+    font-family:var(--display); font-style:italic; font-weight:300;
+    font-size:clamp(120px,16vw,240px); line-height:0.75; opacity:.16;
+    position:absolute; top:-40px; left:-10px; pointer-events:none;
+  }
+  .service-feature-inner{ position:relative; padding-top:120px; }
+  .service-feature .panel{
+    height:clamp(320px,42vw,520px);
+    background:
+      radial-gradient(120% 140% at 20% 0%, rgba(245,244,239,.14), transparent 55%),
+      linear-gradient(135deg, var(--bg-dark) 0%, #1f1f1f 100%);
+    position:relative; overflow:hidden;
+    margin-bottom:34px;
+  }
+  .service-feature .panel svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .service-feature h3{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3vw,40px); margin-bottom:14px; }
+  .service-feature p{ font-size:14px; line-height:1.75; opacity:.72; max-width:420px; }
+
+  .service-list{ border-top:1px solid var(--line-on-light); }
+  .service-row{
+    display:grid; grid-template-columns:44px 1fr auto;
+    align-items:center; gap:22px;
+    padding:26px 0;
+    border-bottom:1px solid var(--line-on-light);
+    cursor:default;
+  }
+  .service-row .idx{ font-family:var(--display); font-style:italic; font-size:14px; opacity:.55; }
+  .service-row .name{
+    font-family:var(--display); font-weight:400; font-size:clamp(19px,2vw,26px);
+    position:relative; display:inline-block;
+  }
+  .service-row .name::after{
+    content:''; position:absolute; left:0; bottom:-4px; width:0; height:1px; background:var(--ink);
+    transition:width .5s var(--ease);
+  }
+  .service-row:hover .name::after{ width:100%; }
+  .service-row .tag{ font-size:10px; letter-spacing:.2em; text-transform:uppercase; opacity:.55; }
+
+  /* ============ SHOWCASE ============ */
+  .showcase{
+    background:var(--bg-dark);
+    color:var(--paper);
+    padding:150px 0 150px;
+    overflow:hidden;
+  }
+  .showcase-head{ padding:0 5vw; margin-bottom:80px; display:flex; justify-content:space-between; align-items:flex-end; gap:30px; flex-wrap:wrap; }
+  .showcase-head h2{ font-family:var(--display); font-weight:400; font-size:clamp(34px,5vw,62px); max-width:600px; }
+  .showcase-head p{ max-width:280px; font-size:13px; letter-spacing:.05em; opacity:.55; }
+
+  .rail{
+    display:flex; gap:36px;
+    padding:0 5vw 30px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .rail::-webkit-scrollbar{ display:none; }
+  .rail-item{ flex:0 0 auto; scroll-snap-align:start; }
+  .rail-item .frame{
+    position:relative; overflow:hidden;
+    background:linear-gradient(160deg, #3a3a3a, #1c1c1c);
+  }
+  .rail-item:nth-child(1) .frame{ width:min(62vw,760px); height:clamp(340px,52vw,620px); }
+  .rail-item:nth-child(2) .frame{ width:min(34vw,420px); height:clamp(340px,52vw,620px); margin-top:70px; }
+  .rail-item:nth-child(3) .frame{ width:min(46vw,560px); height:clamp(340px,52vw,620px); }
+  .rail-item:nth-child(4) .frame{ width:min(30vw,380px); height:clamp(340px,52vw,620px); margin-top:40px; }
+  .rail-item .frame svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .rail-item .cap{ display:flex; justify-content:space-between; padding-top:20px; font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.6; }
+
+  /* ============ TESTIMONIALS ============ */
+  .testi{
+    background:var(--bg-light);
+    padding:190px 5vw 160px;
+    text-align:center;
+    position:relative;
+  }
+  .testi .mark{
+    font-family:var(--display); font-style:italic; font-weight:300;
+    font-size:clamp(160px,26vw,420px); line-height:0.5;
+    position:absolute; top:70px; left:50%; transform:translateX(-50%);
+    opacity:.08; pointer-events:none; user-select:none;
+  }
+  .testi-slide{ display:none; max-width:900px; margin:0 auto; }
+  .testi-slide.active{ display:block; }
+  .testi-slide p.quote{
+    font-family:var(--display); font-weight:400; font-style:italic;
+    font-size:clamp(24px,3.6vw,46px); line-height:1.28; margin-bottom:44px;
+  }
+  .testi-slide .by{ font-size:11px; letter-spacing:.24em; text-transform:uppercase; opacity:.65; }
+  .testi-nav{ display:flex; justify-content:center; gap:14px; margin-top:64px; }
+  .testi-dot{ width:8px; height:8px; border-radius:50%; border:1px solid var(--ink); opacity:.35; cursor:pointer; transition:opacity .4s, background .4s; background:transparent; }
+  .testi-dot.active{ opacity:1; background:var(--ink); }
+
+  /* ============ SERVICE AREA ============ */
+  .area{
+    height:100vh; min-height:600px;
+    background:linear-gradient(180deg, var(--bg-dark) 0%, #1a1a1a 100%);
+    color:var(--paper);
+    display:flex; align-items:center;
+    position:relative; overflow:hidden;
+  }
+  .area-content{ position:relative; z-index:2; padding:0 5vw; max-width:880px; }
+  .area p.lead{
+    font-family:var(--display); font-weight:400; font-size:clamp(28px,4.4vw,54px); line-height:1.28;
+  }
+  .area p.lead em{ font-style:italic; opacity:.6; }
+  .area .list{ margin-top:50px; display:flex; flex-wrap:wrap; gap:14px 34px; }
+  .area .list span{ font-size:11px; letter-spacing:.22em; text-transform:uppercase; opacity:.6; position:relative; padding-left:20px; }
+  .area .list span::before{ content:''; position:absolute; left:0; top:50%; width:10px; height:1px; background:var(--paper); opacity:.5; }
+  .area-map-texture{ position:absolute; inset:0; opacity:.5; }
+
+  /* ============ CONTACT ============ */
+  .contact{
+    background:var(--bg-light);
+    padding:170px 5vw 150px;
+    display:grid; grid-template-columns:1fr 1fr; gap:80px;
+    align-items:start;
+  }
+  .contact h2{ font-family:var(--display); font-weight:400; font-size:clamp(34px,5vw,60px); margin-bottom:70px; }
+  .contact-block{ margin-bottom:46px; }
+  .contact-block .eyebrow{ display:block; margin-bottom:12px; }
+  .contact-block .val{ font-family:var(--display); font-size:clamp(20px,2.2vw,28px); line-height:1.5; }
+  .contact-block a.val:hover{ opacity:.6; }
+  .map-wrap{ position:relative; height:100%; min-height:480px; filter:grayscale(1) contrast(1.05); border:1px solid var(--line-on-light); }
+  .map-wrap iframe{ width:100%; height:100%; min-height:480px; border:0; display:block; }
+
+  /* ============ BOOKING CTA ============ */
+  .cta{
+    height:78vh; min-height:520px;
+    background:var(--bg-dark);
+    color:var(--paper);
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .cta h2{ font-family:var(--display); font-weight:400; font-size:clamp(38px,7vw,96px); line-height:1.02; max-width:1000px; position:relative; z-index:2; }
+  .cta h2 em{ font-style:italic; opacity:.65; }
+  .cta .btn{ margin-top:52px; position:relative; z-index:2; }
+  .cta-glow{
+    position:absolute; width:70vw; height:70vw; border-radius:50%;
+    background:radial-gradient(circle, rgba(245,244,239,.10), transparent 65%);
+    top:50%; left:50%; transform:translate(-50%,-50%);
+    animation:glowmove 12s ease-in-out infinite;
+  }
+  @keyframes glowmove{ 0%,100%{ transform:translate(-52%,-54%) scale(1);} 50%{ transform:translate(-48%,-46%) scale(1.15);} }
+
+  /* ============ FOOTER ============ */
+  footer{
+    background:var(--bg-light-deep);
+    padding:80px 5vw 40px;
+  }
+  .footer-top{
+    display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:50px;
+    padding-bottom:60px;
+    border-bottom:1px solid var(--line-on-light);
+  }
+  .footer-logo{ font-family:var(--display); font-size:26px; font-weight:400; margin-bottom:14px; }
+  .footer-top p{ font-size:13px; line-height:1.7; opacity:.7; max-width:260px; }
+  .footer-col h4{ font-size:10px; letter-spacing:.24em; text-transform:uppercase; opacity:.6; margin-bottom:20px; }
+  .footer-col a, .footer-col span{ display:block; font-size:14px; line-height:2.2; opacity:.85; }
+  .footer-col a:hover{ opacity:1; text-decoration:underline; }
+  .footer-bottom{
+    display:flex; justify-content:space-between; padding-top:34px;
+    font-size:11px; letter-spacing:.06em; opacity:.55; flex-wrap:wrap; gap:14px;
+  }
+
+  @media (max-width:900px){
+    .services-grid{ grid-template-columns:1fr; }
+    .service-feature-inner{ padding-top:70px; }
+    .contact{ grid-template-columns:1fr; gap:60px; }
+    .footer-top{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:560px){
+    .footer-top{ grid-template-columns:1fr; }
+    .hero-top{ padding-top:110px; flex-direction:column; gap:18px; }
+    .hero-cycle-wrap{ text-align:left; }
+    .services{ padding-top:130px; }
+    .rail-item:nth-child(2) .frame,.rail-item:nth-child(4) .frame{ margin-top:0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-logo">Wazny Works</div>
+  <nav class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#showcase">Showcase</a>
+    <a href="#contact">Contact</a>
+    <a href="#book">Book</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="grain"></div>
+  <div class="hero-top">
+    <div class="hero-kicker">Ceramic coating, tint &amp; protective films for vehicles that can't be replaced.</div>
+    <div class="hero-cycle-wrap">
+      <div class="hero-cycle"><span id="cycleWord">Automotive</span></div>
+    </div>
+  </div>
+
+  <div class="hero-mid">
+    <h1 class="hero-title">
+      <span class="line"><span>WAZNY</span></span>
+      <span class="line"><span>WORKS</span></span>
+    </h1>
+    <p class="hero-sub">Protecting what moves you.</p>
+  </div>
+
+  <div class="hero-bottom">
+    <a href="#book" class="btn on-dark">Book an appointment
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <div class="hero-scroll"><span>Scroll</span><span class="stick"></span></div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section class="services" id="services">
+  <div class="services-head reveal">
+    <h2>Every surface treated&nbsp;as if it were the only one.</h2>
+    <p>Seven disciplines, one standard. From daily drivers to aircraft skin, the approach never changes.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-feature reveal">
+      <div class="num">01</div>
+      <div class="service-feature-inner">
+        <div class="panel">
+          <svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gpanel1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#3a3a3a"/><stop offset="1" stop-color="#161616"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="500" fill="url(#gpanel1)"/>
+            <g stroke="#f5f4ef" stroke-width="1" opacity="0.5" fill="none">
+              <path d="M40 330 C 140 260, 220 260, 300 300 C 380 340, 460 340, 560 260"/>
+              <ellipse cx="180" cy="360" rx="42" ry="42"/>
+              <ellipse cx="420" cy="345" rx="42" ry="42"/>
+              <path d="M40 330 L40 300 C 90 250 190 220 300 220 C 400 220 470 250 520 300 L560 260"/>
+            </g>
+            <g opacity="0.18" stroke="#f5f4ef" stroke-width="0.5">
+              <line x1="0" y1="120" x2="600" y2="120"/>
+              <line x1="0" y1="200" x2="600" y2="200"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Ceramic Coating</h3>
+        <p>A permanent, glass-hard layer that holds a mirror finish through years of exposure — engineered chemistry, hand-applied.</p>
+      </div>
+    </div>
+
+    <div class="service-list reveal">
+      <div class="service-row">
+        <span class="idx">02</span><span class="name">Window Tinting</span><span class="tag">Precision Cut</span>
+      </div>
+      <div class="service-row">
+        <span class="idx">03</span><span class="name">Detailing Packages</span><span class="tag">Concours Level</span>
+      </div>
+      <div class="service-row">
+        <span class="idx">04</span><span class="name">Automotive Films</span><span class="tag">Paint Protection</span>
+      </div>
+      <div class="service-row">
+        <span class="idx">05</span><span class="name">Automotive Protection</span><span class="tag">Full Coverage</span>
+      </div>
+      <div class="service-row">
+        <span class="idx">06</span><span class="name">Aircraft Protection</span><span class="tag">Airframe Coatings</span>
+      </div>
+      <div class="service-row">
+        <span class="idx">07</span><span class="name">Boat Protection</span><span class="tag">Marine Grade</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOWCASE ============ -->
+<section class="showcase" id="showcase">
+  <div class="grain"></div>
+  <div class="showcase-head reveal">
+    <h2>Three worlds. One line of protection.</h2>
+    <p>Asphalt, altitude, open water — the same discipline follows the vehicle everywhere it goes.</p>
+  </div>
+
+  <div class="rail reveal">
+    <div class="rail-item">
+      <div class="frame">
+        <svg viewBox="0 0 760 620" preserveAspectRatio="xMidYMid slice">
+          <rect width="760" height="620" fill="#232323"/>
+          <g stroke="#f5f4ef" stroke-width="1" fill="none" opacity="0.55">
+            <path d="M60 420 C 160 340 260 320 380 340 C 500 360 600 400 700 340"/>
+            <path d="M60 420 L 60 390 C 140 320 260 280 380 280 C 500 280 600 320 660 380 L 700 340"/>
+            <ellipse cx="220" cy="450" rx="55" ry="55"/>
+            <ellipse cx="560" cy="435" rx="55" ry="55"/>
+            <line x1="0" y1="150" x2="760" y2="150" opacity="0.3"/>
+          </g>
+        </svg>
+      </div>
+      <div class="cap"><span>Automotive</span><span>01</span></div>
+    </div>
+    <div class="rail-item">
+      <div class="frame">
+        <svg viewBox="0 0 420 620" preserveAspectRatio="xMidYMid slice">
+          <rect width="420" height="620" fill="#1c1c1c"/>
+          <g stroke="#f5f4ef" stroke-width="1" fill="none" opacity="0.5">
+            <path d="M40 300 L 380 260"/>
+            <path d="M180 300 L 120 400 L 160 405 L 220 320"/>
+            <path d="M260 290 L 340 210 L 355 218 L 300 300"/>
+            <line x1="0" y1="470" x2="420" y2="470" opacity="0.25"/>
+          </g>
+        </svg>
+      </div>
+      <div class="cap"><span>Aircraft</span><span>02</span></div>
+    </div>
+    <div class="rail-item">
+      <div class="frame">
+        <svg viewBox="0 0 560 620" preserveAspectRatio="xMidYMid slice">
+          <rect width="560" height="620" fill="#282828"/>
+          <g stroke="#f5f4ef" stroke-width="1" fill="none" opacity="0.5">
+            <path d="M80 400 C 200 440 360 440 480 380 L 500 400 C 380 470 180 470 60 420 Z"/>
+            <path d="M140 400 L 160 300 L 260 280 L 300 400"/>
+            <line x1="220" y1="300" x2="220" y2="230"/>
+            <line x1="0" y1="410" x2="560" y2="410" opacity="0.3"/>
+          </g>
+        </svg>
+      </div>
+      <div class="cap"><span>Marine</span><span>03</span></div>
+    </div>
+    <div class="rail-item">
+      <div class="frame">
+        <svg viewBox="0 0 380 620" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="620" fill="#202020"/>
+          <g stroke="#f5f4ef" stroke-width="1" fill="none" opacity="0.5">
+            <circle cx="190" cy="300" r="130"/>
+            <circle cx="190" cy="300" r="70"/>
+            <line x1="190" y1="130" x2="190" y2="470" opacity="0.3"/>
+          </g>
+        </svg>
+      </div>
+      <div class="cap"><span>Finish Detail</span><span>04</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="testi" id="testimonials">
+  <div class="mark">"</div>
+  <div class="reveal">
+    <div class="testi-slide active">
+      <p class="quote">They treated my car the way a conservator treats a painting — I have never trusted anyone else with it since.</p>
+      <div class="by">— M. Alvarez, Private Collector</div>
+    </div>
+    <div class="testi-slide">
+      <p class="quote">Wazny Works flew out to prep the aircraft before delivery. The finish looked factory new, if the factory cared this much.</p>
+      <div class="by">— J. Petronis, Aviation Client</div>
+    </div>
+    <div class="testi-slide">
+      <p class="quote">Quiet, exact, uncompromising. My detailer for a decade now, and the only one I'd let near the boat.</p>
+      <div class="by">— R. Okafor, Marine Owner</div>
+    </div>
+  </div>
+  <div class="testi-nav">
+    <button class="testi-dot active" data-i="0"></button>
+    <button class="testi-dot" data-i="1"></button>
+    <button class="testi-dot" data-i="2"></button>
+  </div>
+</section>
+
+<!-- ============ SERVICE AREA ============ -->
+<section class="area">
+  <div class="grain"></div>
+  <div class="area-map-texture">
+    <svg width="100%" height="100%" preserveAspectRatio="none">
+      <defs>
+        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M60 0H0V60" fill="none" stroke="#f5f4ef" stroke-width="0.4" opacity="0.15"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+  </div>
+  <div class="area-content reveal">
+    <div class="eyebrow" style="color:#f5f4ef; margin-bottom:26px;">Mobile &amp; In-Studio</div>
+    <p class="lead">We travel where the vehicle lives — <em>garage, hangar, or dock</em> — and bring the same studio standard with us, every time.</p>
+    <div class="list">
+      <span>Luxury Vehicles</span>
+      <span>Daily Drivers</span>
+      <span>Exotic Cars</span>
+      <span>Aircraft</span>
+      <span>Marine Vessels</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="reveal">
+    <h2>Visit the studio.</h2>
+    <div class="contact-block">
+      <span class="eyebrow">Address</span>
+      <a class="val" href="https://maps.google.com/?q=1261+Humbracht+Cir+Ste+K,+Bartlett,+IL+60103" target="_blank" rel="noopener">1261 Humbracht Cir Ste K<br>Bartlett, IL 60103<br>United States</a>
+    </div>
+    <div class="contact-block">
+      <span class="eyebrow">Phone</span>
+      <a class="val" href="tel:+12242880242">+1 224-288-0242</a>
+    </div>
+    <div class="contact-block">
+      <span class="eyebrow">Hours</span>
+      <div class="val">Friday — Thursday<br>8:00 AM – 5:00 PM</div>
+    </div>
+  </div>
+  <div class="map-wrap reveal">
+    <iframe src="https://www.google.com/maps?q=1261+Humbracht+Cir+Ste+K,+Bartlett,+IL+60103&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Wazny Works location"></iframe>
+  </div>
+</section>
+
+<!-- ============ BOOKING CTA ============ -->
+<section class="cta" id="book">
+  <div class="cta-glow"></div>
+  <div class="grain"></div>
+  <h2 class="reveal">Ready to protect<br><em>your investment?</em></h2>
+  <a href="tel:+12242880242" class="btn on-dark reveal">Book Your Appointment
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">Wazny Works</div>
+      <p>Ceramic coating, tinting, and protective films for automotive, aircraft, and marine — based in Bartlett, Illinois.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <a href="#services">Services</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+12242880242">+1 224-288-0242</a>
+      <span>Bartlett, IL 60103</span>
+      <span>Fri — Thu, 8am – 5pm</span>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+      <a href="#">Google Reviews</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Wazny Works. All rights reserved.</span>
+    <span>Site by Wazny Works Studio</span>
+  </div>
+</footer>
+
+<script>
+  // hero load-in
+  window.addEventListener('load', ()=>{
+    document.getElementById('hero').classList.add('loaded');
+  });
+
+  // hero word cycle
+  const words = ['Automotive','Aircraft','Marine'];
+  let wi = 0;
+  const cycleEl = document.getElementById('cycleWord');
+  setInterval(()=>{
+    wi = (wi+1) % words.length;
+    cycleEl.style.transition = 'opacity .5s ease, transform .5s ease';
+    cycleEl.style.opacity = 0;
+    cycleEl.style.transform = 'translateY(6px)';
+    setTimeout(()=>{
+      cycleEl.textContent = words[wi];
+      cycleEl.style.transform = 'translateY(-6px)';
+      requestAnimationFrame(()=>{
+        cycleEl.style.opacity = .85;
+        cycleEl.style.transform = 'translateY(0)';
+      });
+    }, 500);
+  }, 2600);
+
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:0.16 });
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+  // testimonials
+  const slides = document.querySelectorAll('.testi-slide');
+  const dots = document.querySelectorAll('.testi-dot');
+  let ti = 0;
+  function showTesti(i){
+    slides.forEach(s=>s.classList.remove('active'));
+    dots.forEach(d=>d.classList.remove('active'));
+    slides[i].classList.add('active');
+    dots[i].classList.add('active');
+    ti = i;
+  }
+  dots.forEach(d=> d.addEventListener('click', ()=> showTesti(parseInt(d.dataset.i))));
+  setInterval(()=>{ showTesti((ti+1) % slides.length); }, 6500);
+</script>
+
+</body>
+</html>
