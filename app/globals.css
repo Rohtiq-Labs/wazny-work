@@ -532,17 +532,8 @@ header.nav.nav--menu-open {
   width: 100%;
   padding: 130px 5vw 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-start;
-}
-
-.hero-kicker {
-  font-size: 11px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  opacity: 0.6;
-  max-width: 220px;
-  line-height: 1.7;
 }
 
 .hero-cycle-wrap {
@@ -1280,8 +1271,6 @@ footer {
 
   .hero-top {
     padding-top: 110px;
-    flex-direction: column;
-    gap: 18px;
   }
 
   .hero-cycle-wrap {

@@ -46,10 +46,6 @@ const HeroSection = () => {
       </div>
       <div className="grain" />
       <div className="hero-top">
-        <div className="hero-kicker">
-          Ceramic coating, tint &amp; protective films for vehicles that
-          can&apos;t be replaced.
-        </div>
         <div className="hero-cycle-wrap">
           <div className="hero-cycle">
             <span ref={cycleRef}>Automotive</span>
